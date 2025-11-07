@@ -19,10 +19,24 @@ uv init --bare
 uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
 uv pip install -r requirements.txt
 ```
-2. For training: Run `python scripts/main.py --dataset <kaggle-handle> --nc <num-classes> --names <class-names>`
+2. For training: 
+   - With Kaggle dataset: `python scripts/main.py --dataset <kaggle-handle> --nc <num-classes> --names <class-names>`
+   - With local dataset: `python scripts/main.py --local-dataset <path-to-dataset> --nc <num-classes> --names <class-names>`
 3. For inference: Run `python scripts/inference.py --model <model-path> --input <image/video/webcam>`
 ```bash
 cd .\scripts\
+# Kaggle dataset
 python main.py --dataset "jocelyndumlao/multi-weather-pothole-detection-mwpd" --nc 1 --names "Potholes" --epochs 1 --name "yolo_train_demo_potholes_e1_b32"
-python inference.py --model .\runs\train\yolo_train_demo_potholes_e1_b32\weights\best.pt --input <path_image.jpg/path_video.mp4/'webcam'>
+
+# local dataset
+python main.py --local-dataset "C:\path\to\dataset" --nc 1 --names "Potholes" --epochs 60 --name "yolo_train_local"
+
+# inference
+python inference.py --model ".\runs\train\yolo_train_demo_potholes_e1_b32\weights\best.pt" --input <path_image.jpg/path_video.mp4/'webcam'>
 ```
+
+<!-- - local dataset documentation -->
+- local dataset (traffic-signs) training
+- training with epochs 60
+- inference video demo
+- results image in readme; with the link to other images for the best training
