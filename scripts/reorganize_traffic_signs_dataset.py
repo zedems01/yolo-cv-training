@@ -86,7 +86,7 @@ def reorganize_dataset(
     train_images = read_image_list(train_txt)
     test_images = read_image_list(test_txt)
     
-    logging.info(f"Training images: {len(train_images)}"; )
+    logging.info(f"Training images: {len(train_images)}")
     logging.info(f"Test images: {len(test_images)}")
     
     random.shuffle(train_images)

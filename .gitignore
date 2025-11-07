@@ -148,4 +148,4 @@ Thumbs.db
 *.yaml  # Generated YAML configs
 *.pt    # Model weights (optional, if not committing)
 drafts/
-local_dataset/
+local_datasets/
