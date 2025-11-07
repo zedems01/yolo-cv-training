@@ -1,0 +1,9 @@
+{
+  "split": "test",
+  "mAP50": 0.74,
+  "mAP50-95": 0.403,
+  "precision": 0.755,
+  "recall": 0.654,
+  "conf_threshold": 0.25,
+  "imgsz": 640
+}
