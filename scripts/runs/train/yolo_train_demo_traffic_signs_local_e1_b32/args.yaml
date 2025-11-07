@@ -13,7 +13,7 @@ cache: false
 device: '0'
 workers: 8
 project: runs/train
-name: yolo_train_demo_traffic_signes_e1_b32
+name: yolo_train_demo_traffic_signs_local_e1_b32
 exist_ok: true
 pretrained: true
 optimizer: auto
@@ -103,4 +103,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-save_dir: C:\Users\Achille Nguessie\Desktop\Projects\2025\yolo-cv\scripts\runs\train\yolo_train_demo_traffic_signes_e1_b32
+save_dir: C:\Users\Achille Nguessie\Desktop\Projects\2025\yolo-cv\scripts\runs\train\yolo_train_demo_traffic_signs_local_e1_b32
