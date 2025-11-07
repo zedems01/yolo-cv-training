@@ -46,7 +46,6 @@ python evaluate.py --model ".\runs\train\yolo_train_demo_potholes_e1_b32\weights
 </p>
 
 
-<p>
-<video src="./scripts/runs/train/yolo_train_traffic_signs_local_e60_b16/tests/videos_pred/test_video2.mp4" width="700" autoplay loop muted controls></video>
+<p style="text-align: center;">
   <img src="./scripts/runs/train/yolo_train_traffic_signs_local_e60_b16/results.png" alt="results" width="500" />
 </p>
