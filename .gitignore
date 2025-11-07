@@ -149,3 +149,4 @@ Thumbs.db
 *.pt    # Model weights (optional, if not committing)
 drafts/
 local_datasets/
+images_pred/

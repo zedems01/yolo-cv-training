@@ -89,6 +89,45 @@ def infer_webcam(model, conf_thresh=0.5):
     cv2.destroyAllWindows()
 
 
+def infer_folder(model, input_folder, output_folder, conf_thresh=0.5):
+    """Perform inference on all images in a folder."""
+    if not os.path.exists(input_folder):
+        raise FileNotFoundError(f"Input folder not found: {input_folder}")
+    if not os.path.isdir(input_folder):
+        raise ValueError(f"Input path is not a directory: {input_folder}")
+    
+    os.makedirs(output_folder, exist_ok=True)
+    image_extensions = (".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif")
+    image_files = [
+        f for f in os.listdir(input_folder)
+        if f.lower().endswith(image_extensions)
+    ]
+    
+    if not image_files:
+        raise ValueError(f"No image files found in {input_folder}")
+    logging.info(f"Found {len(image_files)} images in {input_folder}")
+    
+    # Process each image
+    for idx, image_file in enumerate(image_files, 1):
+        input_path = os.path.join(input_folder, image_file)
+        output_path = os.path.join(output_folder, image_file)
+        try:
+            img = cv2.imread(input_path)
+            if img is None:
+                logging.warning(f"Could not read image: {input_path}")
+                continue
+            results = model(img, conf=conf_thresh)
+            annotated = results[0].plot()
+            cv2.imwrite(output_path, annotated)
+            if idx % 10 == 0 or idx == len(image_files):
+                logging.info(f"Processed {idx}/{len(image_files)} images")
+        except Exception as e:
+            logging.error(f"Error processing {input_path}: {e}")
+            continue
+    
+    logging.info(f"All images processed. Results saved to {output_folder}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="YOLO Inference Script")
     parser.add_argument(
@@ -97,7 +136,13 @@ def main():
         help="Path to trained model weights, e.g., runs/train/weights/best.pt",
     )
     parser.add_argument(
-        "--input", required=True, help='Input: image/video path or "webcam"'
+        "--input", help='Input: image/video path or "webcam"'
+    )
+    parser.add_argument(
+        "--input-folder", help="Input folder containing test images"
+    )
+    parser.add_argument(
+        "--output-folder", help="Output folder for saving annotated images (required when using --input-folder)"
     )
     parser.add_argument(
         "--conf", type=float, default=0.5, help="Confidence threshold (default: 0.5)"
@@ -107,15 +152,26 @@ def main():
 
     try:
         model = load_model(args.model)
-        input_lower = args.input.lower()
-        if input_lower == "webcam":
-            infer_webcam(model, args.conf)
-        elif input_lower.endswith((".jpg", ".png", ".jpeg", ".bmp", ".tiff")):
-            infer_image(model, args.input, args.conf, args.output)
-        elif input_lower.endswith((".mp4", ".avi", ".mov", ".mkv", ".flv")):
-            infer_video(model, args.input, args.conf, args.output)
+        
+        # Handle folder inference
+        if args.input_folder:
+            if not args.output_folder:
+                raise ValueError("--output-folder is required when using --input-folder")
+            infer_folder(model, args.input_folder, args.output_folder, args.conf)
+        # Handle single file or webcam inference
+        elif args.input:
+            input_lower = args.input.lower()
+            if input_lower == "webcam":
+                infer_webcam(model, args.conf)
+            elif input_lower.endswith((".jpg", ".png", ".jpeg", ".bmp", ".tiff")):
+                infer_image(model, args.input, args.conf, args.output)
+            elif input_lower.endswith((".mp4", ".avi", ".mov", ".mkv", ".flv")):
+                infer_video(model, args.input, args.conf, args.output)
+            else:
+                raise ValueError("Unsupported input type. Use image/video path or 'webcam'")
         else:
-            raise ValueError("Unsupported input type. Use image/video path or 'webcam'")
+            raise ValueError("Either --input or --input-folder must be provided")
+        
         logging.info("Inference completed successfully")
     except Exception as e:
         logging.error(f"Inference failed: {e}")
