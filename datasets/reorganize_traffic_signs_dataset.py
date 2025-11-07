@@ -1,10 +1,19 @@
-# Reorganize 'valentynsichkar/traffic-signs-dataset-in-yolo-format' dataset with train/valid/test folders
-# 
+# Reorganize the 'valentynsichkar/traffic-signs-dataset-in-yolo-format' dataset into standard
+# train/valid/test directory structure expected by YOLO training scripts.
+# Usage:
+# 1. As part of the 'download_dataset' utility in main.py:
+#       - Call this function directly after downloading the dataset.
+#       - The dataset will be restructured in-place and the path to the new root folder returned.
+# 2. As a standalone script:
+#       python reorganize_traffic_signs_dataset.py; from .../.../versions/4/
+#       - After reorganization, use the restructured path with the '--local-dataset'
+#         argument when launching model training.
 
 import os
 import shutil
 import random
-from pathlib import Path
+import logging
+from typing import Dict, Any
 
 def extract_filename(path):
     """Extract filename from full path"""
@@ -36,47 +45,64 @@ def copy_file(src, dst):
         return True
     return False
 
-def main():
-    # Configuration
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    source_images_dir = os.path.join(current_dir, 'ts', 'ts')
-    train_txt = os.path.join(current_dir, 'train.txt')
-    test_txt = os.path.join(current_dir, 'test.txt')
-    output_dir = os.path.join(current_dir, 'traffic_signs')
-    validation_split = 0.2
+def reorganize_dataset(
+    dataset_path: str,
+    validation_split: float = 0.2,
+    output_dir_name: str = 'traffic_signs',
+) -> Dict[str, Any]:
+    """
+    Reorganize 'valentynsichkar/traffic-signs...' dataset into train/valid/test structure.
+    
+    Args:
+        dataset_path: Root directory of the dataset (where train.txt, test.txt, and ts/ts/ are located)
+        validation_split: Fraction of training data to use for validation (default: 0.2)
+        output_dir_name: Name of the output directory (default: 'traffic_signs')
+    Returns:
+        Dictionary with reorganization results
+    """
     random.seed(42)
+    dataset_path = os.path.abspath(dataset_path)
+    source_images_dir = os.path.join(dataset_path, 'ts', 'ts')
+    train_txt = os.path.join(dataset_path, 'train.txt')
+    test_txt = os.path.join(dataset_path, 'test.txt')
+    output_dir = os.path.join(dataset_path, output_dir_name)
     
-    print("Starting dataset restructuration...")
-    print(f"Source directory: {source_images_dir}")
-    print(f"Output directory: {output_dir}")
+    logging.info("Starting dataset reorganization...")
+    logging.info(f"Dataset path: {dataset_path}")
+    logging.info(f"Source directory: {source_images_dir}")
+    logging.info(f"Output directory: {output_dir}")
     
-    print("\nCreating directory structure...")
+    if not os.path.exists(train_txt):
+        raise FileNotFoundError(f"train.txt not found at: {train_txt}")
+    if not os.path.exists(test_txt):
+        raise FileNotFoundError(f"test.txt not found at: {test_txt}")
+    if not os.path.exists(source_images_dir):
+        raise FileNotFoundError(f"Source images directory not found at: {source_images_dir}")
+    
+    logging.info("Creating directory structure...")
     create_directory_structure(output_dir)
     
-    # Read image lists
-    print("\nReading image lists...")
+    logging.info("Reading image lists...")
     train_images = read_image_list(train_txt)
     test_images = read_image_list(test_txt)
     
-    print(f"Training images: {len(train_images)}")
-    print(f"Test images: {len(test_images)}")
+    logging.info(f"Training images: {len(train_images)}"; )
+    logging.info(f"Test images: {len(test_images)}")
     
-    # Split training data into train and validation
     random.shuffle(train_images)
     split_idx = int(len(train_images) * (1 - validation_split))
     train_split = train_images[:split_idx]
     valid_split = train_images[split_idx:]
     
-    print(f"\nSplit results:")
-    print(f"  Train: {len(train_split)} images")
-    print(f"  Validation: {len(valid_split)} images")
-    print(f"  Test: {len(test_images)} images")
+    logging.info(f"Split results:")
+    logging.info(f"  Train: {len(train_split)} images")
+    logging.info(f"  Validation: {len(valid_split)} images")
+    logging.info(f"  Test: {len(test_images)} images")
     
-    # Process training images
-    print("\nProcessing training images...")
+    logging.info("Processing training images...")
     train_copied = 0
     train_failed = 0
-    for img_path in train_split:
+    for idx, img_path in enumerate(train_split):
         filename = extract_filename(img_path)
         img_src = os.path.join(source_images_dir, filename)
         label_src = os.path.join(source_images_dir, filename.replace('.jpg', '.txt'))
@@ -88,13 +114,13 @@ def main():
             train_copied += 1
         else:
             train_failed += 1
-            if train_copied % 50 == 0:
-                print(f"  Processed {train_copied} images...")
+        
+        if (idx + 1) % 50 == 0:
+            logging.info(f"  Processed {idx + 1}/{len(train_split)} training images...")
     
-    print(f"  Training: {train_copied} copied, {train_failed} failed")
+    logging.info(f"Training: {train_copied} copied, {train_failed} failed")
     
-    # Process validation images
-    print("\nProcessing validation images...")
+    logging.info("Processing validation images...")
     valid_copied = 0
     valid_failed = 0
     for img_path in valid_split:
@@ -110,10 +136,9 @@ def main():
         else:
             valid_failed += 1
     
-    print(f"  Validation: {valid_copied} copied, {valid_failed} failed")
+    logging.info(f"Validation: {valid_copied} copied, {valid_failed} failed")
     
-    # Process test images
-    print("\nProcessing test images...")
+    logging.info("Processing test images...")
     test_copied = 0
     test_failed = 0
     for img_path in test_images:
@@ -129,9 +154,8 @@ def main():
         else:
             test_failed += 1
     
-    print(f"  Test: {test_copied} copied, {test_failed} failed")
+    logging.info(f"Test: {test_copied} copied, {test_failed} failed")
     
-    # Summary
     print("\n" + "="*50)
     print("Restructuration complete!")
     print("="*50)
@@ -142,8 +166,43 @@ def main():
     print(f"\nOutput directory: {output_dir}")
     
     if train_failed > 0 or valid_failed > 0 or test_failed > 0:
-        print(f"\nWarning: {train_failed + valid_failed + test_failed} files failed to copy.")
-        print("Please check if all image and label files exist in the source directory.")
+        logging.warning(f"{train_failed + valid_failed + test_failed} files failed to copy.")
+        logging.warning("Please check if all image and label files exist in the source directory.")
+    
+    return {
+        'output_dir': output_dir,
+        'train_count': train_copied,
+        'valid_count': valid_copied,
+        'test_count': test_copied,
+        'train_failed': train_failed,
+        'valid_failed': valid_failed,
+        'test_failed': test_failed
+    }
+
+def main():
+    """Main function for standalone execution"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    result = reorganize_dataset(
+        dataset_path=current_dir,
+        validation_split=0.2,
+        output_dir_name='traffic_signs'
+    )
+    
+    print("\n" + "="*50)
+    print("Reorganization complete!")
+    print("="*50)
+    print(f"Total images processed:")
+    print(f"  Train: {result['train_count']}")
+    print(f"  Validation: {result['valid_count']}")
+    print(f"  Test: {result['test_count']}")
+    print(f"\nOutput directory: {result['output_dir']}")
+    
+    if result['train_failed'] > 0 or result['valid_failed'] > 0 or result['test_failed'] > 0:
+        print(f"\nWarning: {result['train_failed'] + result['valid_failed'] + result['test_failed']} files failed to copy.")
 
 if __name__ == "__main__":
     main()
