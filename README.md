@@ -33,9 +33,20 @@ python main.py --dataset "jocelyndumlao/multi-weather-pothole-detection-mwpd" --
 # local dataset
 python main.py --local-dataset "C:\path\to\dataset" --nc 1 --names "Potholes" --epochs 60 --name "yolo_train_local"
 
-# inference
+# inference (image, folder, video, webcam)
 python inference.py --model ".\runs\train\yolo_train_demo_potholes_e1_b32\weights\best.pt" --input <path_image.jpg/path_video.mp4/'webcam'>
 
 # evaluation on test set
 python evaluate.py --model ".\runs\train\yolo_train_demo_potholes_e1_b32\weights\best.pt" --data ".\MWPD.yaml" --split test
 ```
+
+<p style="text-align: center;">
+  <img src="./scripts/runs/train/yolo_train_potholes_e60_b16/val_batch0_pred.jpg" alt="val_batch0" width="500" />
+  <img src="./scripts/runs/train/yolo_train_potholes_e60_b16/results.png" alt="results" width="500" />
+</p>
+
+
+<p>
+<video src="./scripts/runs/train/yolo_train_traffic_signs_local_e60_b16/tests/videos_pred/test_video2.mp4" width="700" autoplay loop muted controls></video>
+  <img src="./scripts/runs/train/yolo_train_traffic_signs_local_e60_b16/results.png" alt="results" width="500" />
+</p>
