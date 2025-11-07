@@ -1,0 +1,10 @@
+names:
+- prohibitory
+- danger
+- mandatory
+- other
+nc: 4
+path: C:\Users\Achille Nguessie\Desktop\Projects\2025\yolo-cv\local_data\traffic_signs
+test: test\images
+train: train\images
+val: valid\images
