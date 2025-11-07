@@ -4,6 +4,7 @@ import os
 import yaml
 import kagglehub
 from ultralytics import YOLO
+# from reorganize_traffic_signs_dataset import reorganize_dataset
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -12,6 +13,15 @@ def download_dataset(dataset_handle):
     try:
         path = kagglehub.dataset_download(dataset_handle)
         logging.info(f"Downloaded dataset to: {path}")
+        # uncomment if using valentynsichkar/traffic-signs dataset
+        # logging.info("Reorganizing dataset...")
+        # result = reorganize_dataset(
+        #     dataset_path=path,
+        #     validation_split=0.2,
+        #     output_dir_name='traffic_signs',
+        # )
+        # path = result['output_dir']
+        # logging.info(f"Dataset reorganization complete. New path: {path}")
         return path
     except Exception as e:
         logging.error(f"Failed to download dataset: {e}")
@@ -155,7 +165,8 @@ def train_model(yaml_path, epochs, imgsz, batch, device, project, name, weights=
 
 def main():
     parser = argparse.ArgumentParser(description="Train YOLO on any Kaggle dataset")
-    parser.add_argument('--dataset', required=True, help='Kaggle dataset handle, e.g., jocelyndumlao/multi-weather-pothole-detection-mwpd')
+    parser.add_argument('--dataset', help='Kaggle dataset handle, e.g., jocelyndumlao/multi-weather-pothole-detection-mwpd')
+    parser.add_argument('--local-dataset', help='Path to a local dataset directory. Overrides --dataset.')
     parser.add_argument('--nc', type=int, required=True, help='Number of classes')
     parser.add_argument('--names', required=True, help='Class names, comma separated, e.g., "Potholes,Cracks"')
     parser.add_argument('--epochs', type=int, default=60, help='Number of training epochs')
@@ -169,6 +180,13 @@ def main():
 
     args = parser.parse_args()
     names = [n.strip() for n in args.names.split(',')]
+
+    # Validate dataset arguments
+    if not args.dataset and not args.local_dataset:
+        raise ValueError("You must provide either --dataset (for Kaggle) or --local-dataset (for local files).")
+    if args.dataset and args.local_dataset:
+        logging.warning("Both --dataset and --local-dataset specified. Using --local-dataset.")
+        args.dataset = None
 
     # Check for conflicting arguments
     if args.resume and args.weights:
@@ -212,12 +230,20 @@ def main():
             results = train_model(None, args.epochs, args.imgsz, args.batch, args.device, 
                                 args.project, args.name, weights=None, resume=True)
         else:
-            dataset_path = download_dataset(args.dataset)
-            logging.info(f"Dataset downloaded to: {dataset_path}")
-            paths, dataset_path = detect_dataset_structure(dataset_path)
+            dataset_path = None
+            if args.local_dataset:
+                if not os.path.isdir(args.local_dataset):
+                    raise FileNotFoundError(f"Local dataset directory not found: {args.local_dataset}")
+                dataset_path = args.local_dataset
+                logging.info(f"Using local dataset at: {dataset_path}")
+            else:
+                dataset_path = download_dataset(args.dataset)
+                logging.info(f"Dataset downloaded to: {dataset_path}")
+
+            paths, detected_root = detect_dataset_structure(dataset_path)
             if not paths:
                 raise ValueError("No standard train/val/test structure found in dataset")
-            yaml_path = create_yaml(dataset_path, paths, args.nc, names)
+            yaml_path = create_yaml(detected_root, paths, args.nc, names)
             results = train_model(yaml_path, args.epochs, args.imgsz, args.batch, args.device, 
                                 args.project, args.name, weights=args.weights, resume=False)
         logging.info("Training completed successfully")
