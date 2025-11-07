@@ -13,7 +13,7 @@ def download_dataset(dataset_handle):
     try:
         path = kagglehub.dataset_download(dataset_handle)
         logging.info(f"Downloaded dataset to: {path}")
-        # uncomment if using valentynsichkar/traffic-signs dataset
+        # uncomment if using valentynsichkar/traffic-signs... dataset
         # logging.info("Reorganizing dataset...")
         # result = reorganize_dataset(
         #     dataset_path=path,
