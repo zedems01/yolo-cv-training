@@ -1,6 +1,7 @@
 # Example Kaggle Datasets for YOLO Training
 
 This file contains example Kaggle datasets suitable for training YOLO object detection models. Each dataset includes the handle, number of classes, and class names.
+The datasets structure may vary and require adjustments (directly modifying the structure, the data.yaml file, or the code).
 
 ## 1. Pothole Detection
 - **Handle**: `jocelyndumlao/multi-weather-pothole-detection-mwpd`

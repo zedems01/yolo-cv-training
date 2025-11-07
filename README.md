@@ -21,3 +21,8 @@ uv pip install -r requirements.txt
 ```
 2. For training: Run `python scripts/main.py --dataset <kaggle-handle> --nc <num-classes> --names <class-names>`
 3. For inference: Run `python scripts/inference.py --model <model-path> --input <image/video/webcam>`
+```bash
+cd .\scripts\
+python main.py --dataset "jocelyndumlao/multi-weather-pothole-detection-mwpd" --nc 1 --names "Potholes" --epochs 1 --name "yolo_train_demo_potholes_e1_b32"
+python inference.py --model .\runs\train\yolo_train_demo_potholes_e1_b32\weights\best.pt --input <path_image.jpg/path_video.mp4/'webcam'>
+```
