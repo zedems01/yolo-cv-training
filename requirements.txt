@@ -1,10 +1,11 @@
+torch
+torchvision
+torchaudio
 ultralytics
 opencv-python
 kagglehub
 matplotlib
-ipywidgets
 jupyter
-ipykernel
 
-# If running locally with an NVIDIA GPU, consider installing PyTorch with CUDA support:
+# if running locally with an NVIDIA GPU, consider installing PyTorch with CUDA support:
 # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
