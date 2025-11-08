@@ -31,12 +31,14 @@ python inference.py --model ".\runs\train\yolo_train_demo_potholes_e1_b32\weight
 python evaluate.py --model ".\runs\train\yolo_train_demo_potholes_e1_b32\weights\best.pt" --data ".\MWPD.yaml" --split test
 ```
 
+- *jocelyndumlao/multi-weather-pothole-detection-mwpd*: val_batch0_pred.jpg; results.png
 <p style="text-align: center;">
   <img src="./scripts/runs/train/yolo_train_potholes_e60_b16/val_batch0_pred.jpg" alt="val_batch0" width="500" />
   <img src="./scripts/runs/train/yolo_train_potholes_e60_b16/results.png" alt="results" width="500" />
 </p>
 
-
+- *valentynsichkar/traffic-signs-dataset-in-yolo-format*: val_batch1_pred.jpg; results.png
 <p style="text-align: center;">
+<img src="./scripts/runs/train/yolo_train_traffic_signs_local_e60_b16/val_batch1_pred.jpg" alt="results" width="500" />
   <img src="./scripts/runs/train/yolo_train_traffic_signs_local_e60_b16/results.png" alt="results" width="500" />
 </p>
